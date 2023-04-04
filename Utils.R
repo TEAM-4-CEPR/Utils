@@ -1,3 +1,7 @@
+## Author : Ilango Guy
+## Contact : guy.ilango@univ-tours.fr
+## Doc : usefull function to source for R analysis
+
 doublet_finder <- function(seurat_obj){ 
     seurat_obj <- NormalizeData(seurat_obj)
     seurat_obj <- FindVariableFeatures(seurat_obj, selection.method = "vst", nfeatures = 2000)
