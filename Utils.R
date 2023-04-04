@@ -91,3 +91,53 @@ plot_cinetic <- function(table1, cluster, table2){
   return(p)
   
 }
+
+
+dotplot_go_spe_mouse <- function(table , cluster){ 
+cluster_down <- enrichGO(gene         = rownames(table %>% filter(avg_log2FC < 0)),
+                OrgDb         = org.Mm.eg.db,
+                keyType       = 'SYMBOL',
+                ont           = "BP",
+                pAdjustMethod = "BH",
+                pvalueCutoff  = 0.01,
+                qvalueCutoff  = 0.05)
+
+cluster_up <- enrichGO(gene         = rownames(table %>% filter( avg_log2FC > 0)),
+                OrgDb         = org.Mm.eg.db,
+                keyType       = 'SYMBOL',
+                ont           = "BP",
+                pAdjustMethod = "BH",
+                pvalueCutoff  = 0.01,
+                qvalueCutoff  = 0.05)
+
+a<-dotplot(cluster_down) + ggtitle(paste0("Cluster ", as.character(cluster) ," downregulated gene"))
+
+b <- dotplot(cluster_up) + ggtitle(paste0("Cluster ",as.character(cluster) ," upregulated gene"))
+return(list(a , b))
+
+                                   }
+
+dotplot_go_mouse <- function(table , cluster){ 
+cluster_down <- enrichGO(gene         = rownames(table %>% filter(avg_log2FC < 0 , cluster == cluster) ),
+                OrgDb         = org.Mm.eg.db,
+                keyType       = 'SYMBOL',
+                ont           = "BP",
+                pAdjustMethod = "BH",
+                pvalueCutoff  = 0.01,
+                qvalueCutoff  = 0.05)
+
+cluster_up <- enrichGO(gene         = rownames(table %>% filter( avg_log2FC > 0, cluster == cluster)),
+                OrgDb         = org.Mm.eg.db,
+                keyType       = 'SYMBOL',
+                ont           = "BP",
+                pAdjustMethod = "BH",
+                pvalueCutoff  = 0.01,
+                qvalueCutoff  = 0.05)
+
+a<-dotplot(cluster_down) + ggtitle(paste0("Cluster ", as.character(cluster) ," downregulated gene"))
+
+b <- dotplot(cluster_up) + ggtitle(paste0("Cluster ",as.character(cluster) ," upregulated gene"))
+return(list(a , b))
+
+                                   }
+
