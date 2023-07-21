@@ -2,6 +2,21 @@
 ## Contact : guy.ilango@univ-tours.fr
 ## Doc : usefull function to source for R analysis
 
+
+basic_pipe <- function(seurat_obj){
+    seurat_obj <- NormalizeData(seurat_obj)
+seurat_obj <- FindVariableFeatures(seurat_obj)
+all.genes <- rownames(seurat_obj)
+seurat_obj <- ScaleData(seurat_obj, features = all.genes)
+seurat_obj <- RunPCA(nkt, features = VariableFeatures(object = seurat_obj))
+
+seurat_obj <- RunUMAP(seurat_obj, dims = 1:30)
+seurat_obj <- FindNeighbors(seurat_obj, dims = 1:30)
+seurat_obj <- FindClusters(seurat_obj , resolution = 0.2)
+return(seurat_obj) 
+}
+
+
 doublet_finder <- function(seurat_obj){ 
     seurat_obj <- NormalizeData(seurat_obj)
     seurat_obj <- FindVariableFeatures(seurat_obj, selection.method = "vst", nfeatures = 2000)
