@@ -8,7 +8,7 @@ basic_pipe <- function(seurat_obj){
 seurat_obj <- FindVariableFeatures(seurat_obj)
 all.genes <- rownames(seurat_obj)
 seurat_obj <- ScaleData(seurat_obj, features = all.genes)
-seurat_obj <- RunPCA(nkt, features = VariableFeatures(object = seurat_obj))
+seurat_obj <- RunPCA(seurat_obj, features = VariableFeatures(object = seurat_obj))
 
 seurat_obj <- RunUMAP(seurat_obj, dims = 1:30)
 seurat_obj <- FindNeighbors(seurat_obj, dims = 1:30)
