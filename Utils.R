@@ -3,6 +3,15 @@
 ## Doc : usefull function to source for R analysis
 
 
+annotate_de <- function(df) {
+  df <- mutate(df, annot = case_when(
+    log2FoldChange > 0 ~ 'up',
+    log2FoldChange < 0 ~ "down"
+     
+)) 
+}
+
+
 basic_pipe <- function(seurat_obj){
     seurat_obj <- NormalizeData(seurat_obj)
 seurat_obj <- FindVariableFeatures(seurat_obj)
