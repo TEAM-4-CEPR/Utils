@@ -49,7 +49,7 @@ seurat_obj <- ScaleData(seurat_obj, features = all.genes)
   seurat_obj <- RunUMAP(seurat_obj, dims = 1:min.pc)
   seurat_obj <- FindNeighbors(object = seurat_obj, dims = 1:min.pc)              
   seurat_obj <- FindClusters(object = seurat_obj, resolution = 0.2)
-sweep.list <- paramSweep_v3(seurat_obj, PCs = 1:min.pc, num.cores = detectCores() - 1)
+sweep.list <- paramSweep(seurat_obj, PCs = 1:min.pc, num.cores = detectCores() - 1)
 sweep.stats <- summarizeSweep(sweep.list)
 bcmvn <- find.pK(sweep.stats)
   
