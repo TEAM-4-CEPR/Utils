@@ -12,16 +12,16 @@ annotate_de <- function(df) {
 }
 
 
-basic_pipe <- function(seurat_obj){
+basic_pipe <- function(seurat_obj , dim , res ){
     seurat_obj <- NormalizeData(seurat_obj)
 seurat_obj <- FindVariableFeatures(seurat_obj)
 all.genes <- rownames(seurat_obj)
 seurat_obj <- ScaleData(seurat_obj, features = all.genes)
 seurat_obj <- RunPCA(seurat_obj, features = VariableFeatures(object = seurat_obj))
 
-seurat_obj <- RunUMAP(seurat_obj, dims = 1:30)
-seurat_obj <- FindNeighbors(seurat_obj, dims = 1:30)
-seurat_obj <- FindClusters(seurat_obj , resolution = 0.2)
+seurat_obj <- RunUMAP(seurat_obj, dims = 1:dim)
+seurat_obj <- FindNeighbors(seurat_obj, dims = 1:dim)
+seurat_obj <- FindClusters(seurat_obj , resolution = res)
 return(seurat_obj) 
 }
 
