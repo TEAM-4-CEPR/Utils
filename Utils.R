@@ -3,6 +3,15 @@
 ## Doc : usefull function to source for R analysis
 
 
+
+make_readable <- function(df){
+df <- dplyr::filter(df , !grepl('Rik', rownames(df)))
+df <- dplyr::filter(df , !grepl('^mt', rownames(df)))
+df <- dplyr::filter(df , !grepl('^Rp[l|s]', rownames(df)))
+df <- dplyr::filter(df , !grepl('^Mir', rownames(df)))
+    df <- dplyr::filter(df , !grepl('^Gm[0-9]+', rownames(df)))
+}
+
 annotate_de <- function(df) {
   df <- mutate(df, annot = case_when(
     log2FoldChange > 0 ~ 'up',
