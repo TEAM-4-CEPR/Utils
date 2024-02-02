@@ -1,6 +1,49 @@
 ## Author : Ilango Guy
 ## Contact : guy.ilango@univ-tours.fr
 ## Doc : usefull function to source for R analysis
+sc_annotate_de <- function(df) {
+    df$gene <- rownames(df)
+  df <- mutate(df, annot = case_when(
+      str_detect(gene, '^Gm') & avg_log2FC > 0 & p_val_adj <= 0.05 ~ 'pas_interessant_up_sig',
+      str_detect(gene, '^Gm') & avg_log2FC < 0 & p_val_adj <= 0.05 ~ 'pas_interessant_down_sig',
+      str_detect(gene, '^Gm') &   p_val_adj > 0.05 ~ 'pas_interessant_unsig',
+      str_detect(gene, '^mt') & avg_log2FC > 0 & p_val_adj <= 0.05 ~ 'pas_interessant_up_sig',
+      str_detect(gene, '^mt') & avg_log2FC < 0 & p_val_adj <= 0.05 ~ 'pas_interessant_down_sig',
+      str_detect(gene, '^mt') &   p_val_adj > 0.05 ~ 'pas_interessant_unsig',
+      str_detect(gene, '^Rp[l|s]') & avg_log2FC > 0 & p_val_adj <= 0.05 ~ 'pas_interessant_up_sig',
+      str_detect(gene, '^Rp[l|s]') & avg_log2FC < 0 & p_val_adj <= 0.05 ~ 'pas_interessant_down_sig',
+      str_detect(gene, '^Rp[l|s]') &  p_val_adj > 0.05 ~ 'pas_interessant_unsig',
+      str_detect(gene, '^Mir') & avg_log2FC > 0 & p_val_adj <= 0.05 ~ 'pas_interessant_up_sig',
+      str_detect(gene, '^Mir') & avg_log2FC < 0 & p_val_adj <= 0.05 ~ 'pas_interessant_down_sig',
+      str_detect(gene, '^Mir') &   p_val_adj > 0.05 ~ 'pas_interessant_unsig',
+     avg_log2FC > 0 & p_val_adj <= 0.05 ~ 'up_sig',
+      avg_log2FC < 0 & p_val_adj <= 0.05 ~ "down_sig",
+      p_val_adj > 0.05 ~ "unsig",
+      
+      
+         
+     
+)) 
+}
+
+sc_volcano_plotly <- function(df,title) {
+  plot_ly(data = df, x = df$avg_log2FC, y = -log10(df$p_val_adj), text = rownames(df), mode = "markers", color = df$annot) %>%   layout(title = title)
+
+ 
+}
+sc_volcano <- function(df){
+ggplot(df , aes( x = df$avg_log2FC , y = -log10(df$p_val_adj) , color = df$annot)) + geom_point()}
+
+
+
+bulk_volcano_plotly <- function(df,title) {
+  plot_ly(data = df, x = df$log2FoldChange, y = -log10(df$pvalue), text = rownames(df), mode = "markers", color = df$annot) %>%   layout(title = title)
+
+ 
+}
+bulk_volcano <- function(df){
+ggplot(df , aes( x = df$log2FoldChange , y = -log10(df$pvalue) , color = df$annot)) + geom_point()}
+
 
 make_it_bulk <- function(seurat_obj){
     seurat_obj@meta.data$bulk <- seurat_obj@meta.data$orig.ident
@@ -17,7 +60,7 @@ df <- dplyr::filter(df , !grepl('^Mir', rownames(df)))
     df <- dplyr::filter(df , !grepl('^Gm[0-9]+', rownames(df)))
 }
 
-annotate_de <- function(df) {
+bulk_annotate_de <- function(df) {
   df <- mutate(df, annot = case_when(
     log2FoldChange > 0 ~ 'up',
     log2FoldChange < 0 ~ "down"
