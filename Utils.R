@@ -2,7 +2,12 @@
 ## Contact : guy.ilango@univ-tours.fr
 ## Doc : usefull function to source for R analysis
 
-
+make_it_bulk <- function(seurat_obj){
+    seurat_obj@meta.data$bulk <- seurat_obj@meta.data$orig.ident
+    Idents(seurat_obj) <- seurat_obj@meta.data$bulk
+    markers <- FindAllMarkers(seurat_obj)
+    return(markers)
+    }
 
 make_readable <- function(df){
 df <- dplyr::filter(df , !grepl('Rik', rownames(df)))
