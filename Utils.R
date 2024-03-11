@@ -3,6 +3,7 @@
 ## Doc : usefull function to source for R analysis
 
 
+library(dplyr)
 
 
 
