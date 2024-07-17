@@ -4,7 +4,43 @@
 
 
 library(dplyr)
+library(stringr)
 
+
+heatmap_bulk_zscore <- function(dds , title){
+library(ClassDiscovery)
+ntd <- normTransform(dds)
+t <- assay(ntd)
+zscores <- apply(t, 1, function(gene_expr) {
+  (gene_expr - mean(gene_expr)) / sd(gene_expr)
+})
+zscores <- zscores[ , colSums(is.na(zscores)) == 0]
+hc.features <- t(zscores) %>% t() %>%  
+  distanceMatrix(metric="pearson") %>%
+  hclust(method="average")               
+ 
+hc.samples <- t(zscores) %>% 
+  distanceMatrix(metric="pearson") %>%
+  hclust(method="average")
+ 
+return(pheatmap::pheatmap(t(zscores), 
+                   scale = "row",
+                   
+                   show_colnames  = T
+                   ,main = title, 
+                   cluster_rows   = hc.features,
+                   cluster_cols   = hc.samples) )
+}
+
+
+save_pheatmap_pdf <- function(x, filename, width=7, height=7) {
+   stopifnot(!missing(x))
+   stopifnot(!missing(filename))
+   pdf(filename, width=width, height=height)
+   grid::grid.newpage()
+   grid::grid.draw(x$gtable)
+   dev.off()
+}
 
 
 
