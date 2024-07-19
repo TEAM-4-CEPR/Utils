@@ -6,7 +6,30 @@
 library(dplyr)
 library(stringr)
 
-Baranal <- function(tab , frequence , sample , cluster , curvetype){
+prep_GO <- function(df){
+original_gene_list <- df$log2FoldChange
+
+# name the vector
+names(original_gene_list) <- rownames(df)
+
+# omit any NA values 
+gene_list<- original_gene_list
+
+# sort the list in decreasing order (required for clusterProfiler)
+gene_list = sort(gene_list, decreasing = TRUE)
+gse <- gseGO(geneList=gene_list, 
+             ont ="ALL", 
+             keyType = "SYMBOL", 
+             minGSSize = 3, 
+             maxGSSize = 800, 
+             pvalueCutoff = 0.05, 
+             verbose = TRUE, 
+             OrgDb = organism, 
+             pAdjustMethod = "none")
+return(gse)
+}
+
+baranal <- function(tab , frequence , sample , cluster , curvetype){
     tab %>% ggplot(aes(y = frequence, x = sample, fill = as.character(cluster))) +
   geom_flow(aes(alluvium = cluster), alpha= .5, color = "white",
             curve_type = curvetype, 
