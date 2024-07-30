@@ -124,8 +124,8 @@ bulk_volcano <- function(df){
 ggplot(df , aes( x = df$log2FoldChange , y = -log10(df$pvalue) , color = df$annot)) + geom_point()}
 
 
-make_it_bulk <- function(seurat_obj){
-    seurat_obj@meta.data$bulk <- seurat_obj@meta.data$orig.ident
+make_it_bulk <- function(seurat_obj , sampleID){
+    seurat_obj@meta.data$bulk <- seurat_obj@meta.data$sampleID
     Idents(seurat_obj) <- seurat_obj@meta.data$bulk
     markers <- FindAllMarkers(seurat_obj)
     return(markers)
