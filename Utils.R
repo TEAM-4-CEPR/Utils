@@ -201,7 +201,7 @@ nExp.poi <- round(optimal.pk * nrow(seurat_obj@meta.data)) ## Assuming 7.5% doub
 nExp.poi.adj <- round(nExp.poi * (1 - homotypic.prop))
   
 # run DoubletFinder
-seurat_obj <- doubletFinder_v3(seu = seurat_obj, 
+seurat_obj <- doubletFinder(seu = seurat_obj, 
                                    PCs = 1:min.pc, 
                                    pK = optimal.pk,
                                    nExp = nExp.poi.adj)
