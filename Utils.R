@@ -29,17 +29,24 @@ gse <- gseGO(geneList=gene_list,
 return(gse)
 }
 
-baranal <- function(tab , frequence , sample , cluster , curvetype){
-    tab %>% ggplot(aes(y = frequence, x = sample, fill = as.character(cluster))) +
-  geom_flow(aes(alluvium = cluster), alpha= .5, color = "white",
-            curve_type = curvetype, 
-            width = .5) +
-  geom_col(width = .5, color = "white") +
-  scale_y_continuous(NULL, expand = c(0,0)) +
-  cowplot::theme_minimal_hgrid() +
-  theme(panel.grid.major = element_blank(), 
-        axis.text.y = element_blank(), 
-        axis.ticks.y = element_blank())}
+baranal <- function(seurat_object){
+  library(tidyverse)
+  library(scCustomize)
+  library(ggalluvial)
+  cluster_stats <- as.data.frame(Cluster_Stats_All_Samples(seurat_object = seurat_object))
+  cluster_stats <- cluster_stats %>% filter(row_number() <= n()-1)
+  cluster_stats <- cluster_stats %>% select(Cluster , ends_with("%"))
+  tab <- cluster_stats %>% gather(key = "keys" , value = "values" , -Cluster)
+  tab %>% ggplot(aes(y = values, x = keys, fill = Cluster)) +
+    geom_flow(aes(alluvium = Cluster), alpha= .5, color = "white",
+              curve_type = "sigmoid", 
+              width = .5) +
+    geom_col(width = .5, color = "white") +
+    scale_y_continuous(NULL, expand = c(0,0)) +
+    cowplot::theme_minimal_hgrid() +
+    theme(panel.grid.major = element_blank(), 
+          axis.text.y = element_blank(), 
+          axis.ticks.y = element_blank())}
 
 heatmap_bulk_zscore <- function(dds , title){
 library(ClassDiscovery)
