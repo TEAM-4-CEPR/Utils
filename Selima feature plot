@@ -1,0 +1,60 @@
+library(dplyr)
+library(Seurat)
+library(patchwork)
+
+DimPlot(Guy, label = TRUE)
+
+set.seed(42)
+Guy <- FindNeighbors(Guy, dims = 1:30)
+Guy <- FindClusters(Guy, resolution = 2)
+DimPlot(Guy, reduction = "umap", label = TRUE, pt.size = 1)
+
+new.cluster.ids <- c("Thymus_GdT", "Skin_GdT", "CD4+ Th1", "Cytotoxic CD8+", "Thymus_GdT", "Tinn17c",
+                     "CD4+ Th1", "Thymus_GdT", 
+                     "Thymus_GdT", "Naive T",  "Tinn1", "Treg", "Thymus_GdT", "Differentiating T", "Skin_GdT", "Naive T",
+                     "Tinn17d", "Cycling","Cytotoxic CD8+", "pLN_GdT", "Naive T", "CD4+ Th1", "Thymus_GdT", "Cycling",
+                     "Differentiating T", "Cycling", "Cytotoxic CD8+", "Differentiating T", "Mait", "Cytotoxic CD8+", 
+                     "Cytotoxic CD8+", "Differentiating T", "Treg")
+                     
+names(new.cluster.ids) <- levels(Guy)
+Guy <- RenameIdents(Guy, new.cluster.ids)
+DimPlot(Guy, reduction = "umap", label = TRUE, pt.size = 0.2) 
+
+
+
+
+
+
+
+#thymus
+FeaturePlot(Guy, features = c("Cd27", "Cd24a","Ccr7", "Cd44", "Il23r", "Ccr2",
+                                              "Maf", "Rorc"))
+
+FeaturePlot(Guy, features = c("Ccr9", "Sox4","Tcf7", "Blk", "Scart1",
+                              "Cxcr6", "Tmem176a", "Tmem176b"))
+
+FeaturePlot(Guy, features = c("Lck", "Sell","Cd28", "S100a6", "Amica1",
+                              "Ly6a", "Scart2", "Sox13"))
+
+#pLN_1
+FeaturePlot(Guy, features = c("Mbnl1", "Il17r","Slfn2", "Lpar6", "Klf2",
+                              "Tbc1d10c", "Ifi203", "Gm4955"))
+
+FeaturePlot(Guy, features = c("Ypel3", "Tsc22d4","Mndal", "Pyhin1", "Psmb10",
+                              "Acsbg1", "Gm42418"))
+
+# pLN_2
+FeaturePlot(Guy, features = c("Hist1h2ae", "Top2a","Stmn1", "Nusap1", "Hmgb2",
+                              "Tuba1b", "Hist1h2ap"))
+#skin
+FeaturePlot(Guy, features = c("Gadd45b", "Bcl2a1b","Fth1", "Furin", "Srgn",
+                              "Nfkbia", "Rel", "Bcl2a1d"))
+FeaturePlot(Guy, features = c("Sdc4", "Lmna","Odc1", "Arl5c", "Nr4a1",
+                              "Cxcl2", "Areg"))
+#thy
+FeaturePlot(Guy, features = c("Jund", "Ly6a","Vps37b", "Crem", "Emb",
+                              "Hspe1", "Cebpb", "Dnajb6"))
+FeaturePlot(Guy, features = c("Cwc25", "Got1","Rgs2", "Cstb", "Calca",
+                              "Hsp90aa1", "Hspa1a"))
+getwd()
+saveRDS(Guy , "Guy.rds")
