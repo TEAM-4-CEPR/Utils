@@ -311,6 +311,9 @@ return(list(a , b))
 
 
 ##### signatures
+
+gene_batch_manip <- c("Abt1","Aebp2","Arl5b","Arl5c","Arpc3","Atp5md","Avpi1","AY036118","B930036N10Rik","Bcl2a1b","Bcl2a1d","Bpnt1","Braf","Cdk11b","Cdkn1a","Cebpb","Cenpa","Clcn3","Coro1a","Crem","Cstb","Cwc25","Cxcl10","Cytip","D16Ertd472e","D8Ertd738e","Dad1","Ddx3y","Dennd4a","Dgat1","Dnaja1","Dnajb6","Dot1l","Dusp1","Dusp10","Ell2","Emb","Emd","Eprs","Fos","Fosl2","Fth1","Gch1","Gimap1","Got1","H2afz","Hk2","Icos","Ier5l","Ifngr2","Ifrd1","Il2rb","Impdh2","Isy1","Jmy","Jun","Kctd12","Kdm2b","Kdm6b","Klf4","Klf6","Kpna1","Lars2","Lmna","Maff","Mast4","Med31","Mpp7","Nabp1","Neurl3","Nfkb1","Nfkbie","Nop53","Nr4a2","Nr4a3","Nrip1","Nup98","Odc1","Orai1","P2ry10","Paxbp1","Pim1","Plcxd2","Pmepa1","Prr7","Ramp3","Rassf3","Rel","Rheb","Rora","Rrad","Samsn1","Satb1","Sfpq","Skil","Smarca5","Smchd1","Snx18","Spag9","Spty2d1","Tgfb1","Tiparp","Tnfrsf1b","Tob2","Tpm4","Traf4","Trmt61b","Txnl1","Ubald2","Vps37b","Ythdc1","Zc3hav1","Zfp36")
+
 GOBP_POSITIVE_REGULATION_OF_EPITHELIAL_CELL_PROLIFERATION_INVOLVED_IN_LUNG_MORPHOGENESIS <- str_to_title(c("Foxp2","Cdc42","Fgf7","Fgfr2","Hmga2","Wnt2","Srsf6"))
 GOBP_POSITIVE_REGULATION_OF_EPITHELIAL_CELL_PROLIFERATION_INVOLVED_IN_WOUND_HEALING <- str_to_title(c("Cldn1","Cxadr","Fzd7","B4galt1","Mmp12","Eppk1","Wnt7a","Jaml","Lrg1"))
 
