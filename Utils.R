@@ -3,8 +3,88 @@
 ## Doc : usefull function to source for R analysis
 
 
-library(dplyr)
-library(stringr)
+
+
+integrate_multiome <- function(seu1 , seu2 , res ){
+
+
+
+combined.multiome <- merge(seu1, y = seu2)
+cells_ok <- rownames(combined.multiome@meta.data)[!is.na(combined.multiome$batch)]
+combined.multiome <- subset(combined.multiome, cells = cells_ok)
+print(paste("Nombre de cellules après fusion :", ncol(combined.multiome)))
+
+
+DefaultAssay(combined.multiome) <- "RNA"
+
+# Traitement standard RNA
+combined.multiome <- NormalizeData(combined.multiome) %>%
+  FindVariableFeatures() %>%
+  ScaleData() %>%
+  RunPCA(verbose = FALSE, reduction.name = "pca")
+
+# Intégration RNA avec Harmony
+# On corrige la réduction 'pca' en utilisant la colonne 'dataset'
+combined.multiome <- RunHarmony(
+  object = combined.multiome,
+  group.by.vars = "batch",
+  reduction.use = "pca",         # Entrée : PCA standard
+  assay.use = "RNA",
+  project.name = "harmony_rna"   # Sortie : Nouvelle réduction nommée 'harmony_rna'
+)
+
+
+DefaultAssay(combined.multiome) <- "ATAC"
+
+# Traitement standard ATAC (LSI)
+combined.multiome <- RunTFIDF(combined.multiome)
+combined.multiome <- FindTopFeatures(combined.multiome, min.cutoff = 'q0')
+combined.multiome <- RunSVD(combined.multiome, reduction.name = "lsi")
+combined.multiome <- RunUMAP(combined.multiome, reduction = "lsi", dims = 2:30)
+integration.anchors <- FindIntegrationAnchors(
+  object.list = list(seu1, seu2),
+  anchor.features = rownames(seu1),
+  reduction = "rlsi",
+  dims = 2:30
+)
+
+# integrate LSI embeddings
+combined.multiome <- IntegrateEmbeddings(
+  anchorset = integration.anchors,
+  reductions = combined.multiome[["lsi"]],
+  new.reduction.name = "integrated_lsi",
+  dims.to.integrate = 1:30
+)
+
+
+
+
+
+combined.multiome <- FindMultiModalNeighbors(
+  object = combined.multiome,
+  reduction.list = list("harmony", "integrated_lsi"), 
+  dims.list = list(1:30, 2:30), # Ajustez les dimensions si besoin (souvent 2:50 pour ATAC pour éviter le 1er composant)
+  modality.weight.name = "RNA.weight"
+)
+
+# Création de l'UMAP UNIQUE basée sur le graphe pondéré (WNN)
+combined.multiome <- RunUMAP(
+  combined.multiome, 
+  nn.name = "weighted.nn", 
+  reduction.name = "wnn.umap", 
+  reduction.key = "WNNUMAP_"
+)
+
+# Clustering basé sur le graphe pondéré
+combined.multiome <- FindClusters(
+  combined.multiome, 
+  graph.name = "wsnn", 
+  algorithm = 3, 
+  resolution = res
+)
+
+return(combined.multiome)
+}
 
 prep_GO <- function(df){
 original_gene_list <- df$log2FoldChange
