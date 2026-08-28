@@ -48,30 +48,36 @@ return(seu)}
 
 
 basic_pipe_cite_seq <- function(seu , res , dim , dimcite ) {
-
-   
-  seu <- NormalizeData(seu)
+library(dsb)
+seu <- NormalizeData(seu)
 seu <- FindVariableFeatures(seu)
 seu <- ScaleData(seu)
 seu <- RunPCA(seu)
-seu <- FindNeighbors(seu, dims = 1:dim)
-seu <- FindClusters(seu, resolution = res)
-seu <- RunUMAP(seu, dims = 1:dim)
+seu <- FindNeighbors(seu, dims = 1:30)
+seu <- FindClusters(seu, resolution = 0.2)
+seu <- RunUMAP(seu, dims = 1:30)
   
 
-DefaultAssay(seu) <- 'ADT'
+dsb.norm = ModelNegativeADTnorm(cell_protein_matrix = counts$`Antibody Capture`,
+                                denoise.counts = TRUE,
+                                use.isotype.control = F
+                                )
+
+  seu <-  SetAssayData(seu, layer = 'data', 
+                  assay = 'ADT', 
+                  new.data = dsb.norm)
+  DefaultAssay(seu) <- 'ADT'
 VariableFeatures(seu) <- rownames(seu[["ADT"]])
-seu <- NormalizeData(seu ,  normalization.method = 'CLR', margin = 2 )
+seu <- NormalizeData(seu)
 seu <- ScaleData(seu)
 seu <- RunPCA(
   seu,
   assay = "ADT",
   features = VariableFeatures(seu),
-  npcs = dimcite,                
+  npcs = 6,                
   reduction.name = "apca",
   verbose = TRUE
 )
-  
 seu <- FindMultiModalNeighbors(
   seu, 
   reduction.list = list("pca", "apca"), 
@@ -81,6 +87,8 @@ seu <- FindMultiModalNeighbors(
 
   seu <- RunUMAP(seu, nn.name = "weighted.nn", reduction.name = "wnn.umap", reduction.key = "wnnUMAP_")
 seu <- FindClusters(seu, graph.name = "wsnn", resolution = res)
+
+DimPlot(seu, reduction  ="wnn.umap") 
 return(seu)}
   
 integrate_multiome <- function(seu1 , seu2 , res ){
