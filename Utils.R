@@ -5,14 +5,7 @@
 
 basic_pipe_cite_seq <- function(seu , res , dim , dimcite ) {
   library(dsb)
-   SetAssayData(bmcite, slot = 'data', 
-                  assay = 'ADT', 
-                  new.data = dsb.norm)
-  norm.adt = ModelNegativeADTnorm(cell_protein_matrix = counts$`Antibody Capture`,
-                                denoise.counts = TRUE,
-                                use.isotype.control = F
-                                )
-  
+   
   seu <- NormalizeData(seu)
 seu <- FindVariableFeatures(seu)
 seu <- ScaleData(seu)
@@ -26,7 +19,7 @@ seu <- RunUMAP(seu, dims = 1:dim)
                                 denoise.counts = TRUE,
                                 use.isotype.control = F
                                 )
-  seu <-  SetAssayData(seu, slot = 'data', 
+  seu <-  SetAssayData(seu, layer = 'data', 
                   assay = 'ADT', 
                   new.data = dsb.norm)
   
