@@ -3,7 +3,7 @@
 ## Doc : usefull function to source for R analysis
 
 
-basic_pipe_cite_seq <- function(seu , res , dim , dimcite ) {
+basic_pipe_cite_seq_dsb <- function(seu , res , dim , dimcite ) {
   library(dsb)
    
   seu <- NormalizeData(seu)
@@ -45,6 +45,43 @@ seu <- FindMultiModalNeighbors(
 seu <- FindClusters(seu, graph.name = "wsnn", resolution = res)
 return(seu)}
   
+
+
+basic_pipe_cite_seq <- function(seu , res , dim , dimcite ) {
+
+   
+  seu <- NormalizeData(seu)
+seu <- FindVariableFeatures(seu)
+seu <- ScaleData(seu)
+seu <- RunPCA(seu)
+seu <- FindNeighbors(seu, dims = 1:dim)
+seu <- FindClusters(seu, resolution = res)
+seu <- RunUMAP(seu, dims = 1:dim)
+  
+
+DefaultAssay(seu) <- 'ADT'
+VariableFeatures(seu) <- rownames(seu[["ADT"]])
+seu <- NormalizeData(seu ,  normalization.method = 'CLR', margin = 2 )
+seu <- ScaleData(seu)
+seu <- RunPCA(
+  seu,
+  assay = "ADT",
+  features = VariableFeatures(seu),
+  npcs = dimcite,                
+  reduction.name = "apca",
+  verbose = TRUE
+)
+  
+seu <- FindMultiModalNeighbors(
+  seu, 
+  reduction.list = list("pca", "apca"), 
+  dims.list = list(1:dim, 1:dimcite), 
+  modality.weight.name = "RNA.weight"
+)
+
+  seu <- RunUMAP(seu, nn.name = "weighted.nn", reduction.name = "wnn.umap", reduction.key = "wnnUMAP_")
+seu <- FindClusters(seu, graph.name = "wsnn", resolution = res)
+return(seu)}
   
 integrate_multiome <- function(seu1 , seu2 , res ){
 
