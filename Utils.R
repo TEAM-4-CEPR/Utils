@@ -3,7 +3,7 @@
 ## Doc : usefull function to source for R analysis
 
 
-basic_pipe_cite_seq_dsb <- function(seu , res , dim , dimcite ) {
+basic_pipe_cite_seq_dsb <- function(seu , counts, res , dim , dimcite ) {
   library(dsb)
    
   seu <- NormalizeData(seu)
