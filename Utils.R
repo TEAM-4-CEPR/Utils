@@ -7,15 +7,15 @@ basic_pipe_cite_seq_dsb <- function(seu, counts, res, dim, dimcite) {
   library(dsb)
   
   
-  seu <- NormalizeData(seu)
-  seu <- FindVariableFeatures(seu)
-  seu <- ScaleData(seu)
+  seu <- NormalizeData(seu, verbose = FALSE)
+  seu <- FindVariableFeatures(seu, verbose = FALSE)
+  seu <- ScaleData(seu, verbose = FALSE)
   seu <- RunPCA(seu, verbose = FALSE)
   seu <- FindNeighbors(seu, dims = 1:dim, verbose = FALSE)
   seu <- FindClusters(seu, resolution = res, verbose = FALSE)
   seu <- RunUMAP(seu, dims = 1:dim, verbose = FALSE)
   
-
+ 
   dsb.norm <- ModelNegativeADTnorm(
     cell_protein_matrix = counts,
     denoise.counts = TRUE,
@@ -24,24 +24,29 @@ basic_pipe_cite_seq_dsb <- function(seu, counts, res, dim, dimcite) {
   
   
   rownames(dsb.norm) <- gsub("_", "-", rownames(dsb.norm))
-  
-  
   common_features <- intersect(rownames(seu[["ADT"]]), rownames(dsb.norm))
   common_cells <- intersect(colnames(seu), colnames(dsb.norm))
   
   dsb.norm <- dsb.norm[common_features, common_cells]
-  
-
   LayerData(seu[["ADT"]], layer = "data") <- dsb.norm
   
   
-  VariableFeatures(seu[["ADT"]]) <- rownames(seu[["ADT"]])
+  num_adt_features <- length(common_features)
+  
+  max_adt_dims <- min(dimcite, num_adt_features - 1)
+  
+  if (max_adt_dims < 1) {
+    stop("Nombre d'anticorps insuffisant pour réaliser une PCA ADT.")
+  }
+  
+  
+  VariableFeatures(seu[["ADT"]]) <- common_features
   seu <- ScaleData(seu, assay = "ADT", verbose = FALSE)
   seu <- RunPCA(
     seu,
     assay = "ADT",
     features = VariableFeatures(seu[["ADT"]]),
-    npcs = dimcite,
+    npcs = max_adt_dims,
     reduction.name = "apca",
     verbose = FALSE
   )
@@ -50,11 +55,12 @@ basic_pipe_cite_seq_dsb <- function(seu, counts, res, dim, dimcite) {
   seu <- FindMultiModalNeighbors(
     seu,
     reduction.list = list("pca", "apca"),
-    dims.list = list(1:dim, 1:dimcite),
+    dims.list = list(1:dim, 1:max_adt_dims),
     modality.weight.name = "RNA.weight",
     verbose = FALSE
   )
   
+ 
   seu <- RunUMAP(
     seu,
     nn.name = "weighted.nn",
