@@ -15,7 +15,7 @@ seu <- FindClusters(seu, resolution = res)
 seu <- RunUMAP(seu, dims = 1:dim)
   
 
-  dsb.norm = ModelNegativeADTnorm(cell_protein_matrix = counts$`Antibody Capture`,
+  dsb.norm = ModelNegativeADTnorm(cell_protein_matrix = counts,
                                 denoise.counts = TRUE,
                                 use.isotype.control = F
                                 )
