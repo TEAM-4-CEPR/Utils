@@ -3,47 +3,69 @@
 ## Doc : usefull function to source for R analysis
 
 
-basic_pipe_cite_seq_dsb <- function(seu , counts, res , dim , dimcite ) {
+basic_pipe_cite_seq_dsb <- function(seu, counts, res, dim, dimcite) {
   library(dsb)
-   
+  
+  
   seu <- NormalizeData(seu)
-seu <- FindVariableFeatures(seu)
-seu <- ScaleData(seu)
-seu <- RunPCA(seu)
-seu <- FindNeighbors(seu, dims = 1:dim)
-seu <- FindClusters(seu, resolution = res)
-seu <- RunUMAP(seu, dims = 1:dim)
+  seu <- FindVariableFeatures(seu)
+  seu <- ScaleData(seu)
+  seu <- RunPCA(seu, verbose = FALSE)
+  seu <- FindNeighbors(seu, dims = 1:dim, verbose = FALSE)
+  seu <- FindClusters(seu, resolution = res, verbose = FALSE)
+  seu <- RunUMAP(seu, dims = 1:dim, verbose = FALSE)
   
 
-  dsb.norm = ModelNegativeADTnorm(cell_protein_matrix = counts,
-                                denoise.counts = TRUE,
-                                use.isotype.control = F
-                                )
-  seu <-  SetAssayData(seu, layer = 'data', 
-                  assay = 'ADT', 
-                  new.data = dsb.norm)
+  dsb.norm <- ModelNegativeADTnorm(
+    cell_protein_matrix = counts,
+    denoise.counts = TRUE,
+    use.isotype.control = FALSE
+  )
   
-VariableFeatures(seu) <- rownames(seu[["ADT"]])
-seu <- NormalizeData(seu)
-seu <- ScaleData(seu)
-seu <- RunPCA(
-  seu,
-  assay = "ADT",
-  features = VariableFeatures(seu),
-  npcs = dimcite,                
-  reduction.name = "apca",
-  verbose = TRUE
-)
-seu <- FindMultiModalNeighbors(
-  seu, 
-  reduction.list = list("pca", "apca"), 
-  dims.list = list(1:30, 1:6), 
-  modality.weight.name = "RNA.weight"
-)
+  
+  rownames(dsb.norm) <- gsub("_", "-", rownames(dsb.norm))
+  
+  
+  common_features <- intersect(rownames(seu[["ADT"]]), rownames(dsb.norm))
+  common_cells <- intersect(colnames(seu), colnames(dsb.norm))
+  
+  dsb.norm <- dsb.norm[common_features, common_cells]
+  
 
-  seu <- RunUMAP(seu, nn.name = "weighted.nn", reduction.name = "wnn.umap", reduction.key = "wnnUMAP_")
-seu <- FindClusters(seu, graph.name = "wsnn", resolution = res)
-return(seu)}
+  LayerData(seu[["ADT"]], layer = "data") <- dsb.norm
+  
+  
+  VariableFeatures(seu[["ADT"]]) <- rownames(seu[["ADT"]])
+  seu <- ScaleData(seu, assay = "ADT", verbose = FALSE)
+  seu <- RunPCA(
+    seu,
+    assay = "ADT",
+    features = VariableFeatures(seu[["ADT"]]),
+    npcs = dimcite,
+    reduction.name = "apca",
+    verbose = FALSE
+  )
+  
+  
+  seu <- FindMultiModalNeighbors(
+    seu,
+    reduction.list = list("pca", "apca"),
+    dims.list = list(1:dim, 1:dimcite),
+    modality.weight.name = "RNA.weight",
+    verbose = FALSE
+  )
+  
+  seu <- RunUMAP(
+    seu,
+    nn.name = "weighted.nn",
+    reduction.name = "wnn.umap",
+    reduction.key = "wnnUMAP_",
+    verbose = FALSE
+  )
+  seu <- FindClusters(seu, graph.name = "wsnn", resolution = res, verbose = FALSE)
+  
+  return(seu)
+}
   
 
 
