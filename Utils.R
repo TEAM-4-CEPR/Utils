@@ -68,7 +68,7 @@ basic_pipe_cite_seq_dsb <- function(seu, counts, res, dim, dimcite) {
     reduction.key = "wnnUMAP_",
     verbose = FALSE
   )
-  seu <- FindClusters(seu, graph.name = "wsnn", resolution = res, verbose = FALSE)
+  seu <- FindClusters(seu, graph.name = "wsnn", algorithm = 4 , resolution = res, verbose = FALSE)
   
   return(seu)
 }
